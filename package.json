@@ -1,6 +1,6 @@
 {
   "name" : "cobalt",
-  "description" : "Logger + multiplexer for JSON based logs",
+  "description" : "Logger + multiplexer for JSON based logs, based on Cobalt ruby gem by ktlacaelel (http://rubygems.org/gems/cobalt)",
   "author" : {
     "name"  : "Ben Beltran",
     "email" : "ben@nsovocal.com",
@@ -22,5 +22,4 @@
   },
   "engines" : { "node" : ">= 0.8.0" },
   "main" : "./lib/cobalt.js",
-  "private" : true
 }
