@@ -1,5 +1,5 @@
 {
-  "name" : "cobalt",
+  "name" : "cobalt-log",
   "description" : "Logger + multiplexer for JSON based logs, based on Cobalt ruby gem by ktlacaelel (http://rubygems.org/gems/cobalt)",
   "author" : {
     "name"  : "Ben Beltran",
