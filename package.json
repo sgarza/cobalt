@@ -6,6 +6,10 @@
     "email" : "ben@nsovocal.com",
     "url" : "http://nsovocal.com"
   },
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/benbeltran/cobalt.git"
+  },
   "contributors" : [
     {
       "name" : "Kazuyoshi Tlacaelel",
