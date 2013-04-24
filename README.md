@@ -4,6 +4,13 @@ Cobalt is a simple logger multiplexer that works with a JSON based format. You c
 
 Example of instantiating a cobalt logger:
 
+In node:
+```
+Cobalt = require('cobalt-log');
+```
+
+In the browser just require the files. Then:
+
 ```
 this.logger = new Cobalt.Console({
   from : "Breezi Client",
