@@ -1,0 +1,12 @@
+2014-03-20 Ben Beltran <ben@nsovocal.com>
+
+	Version 1.0.0
+
+	* lib/cobalt.js (buildLog): logging a logObject will now use the calling
+	method's severity instead of the logObject severity. so calling `#error`
+	will always provide severity level 3.
+
+	* package.json: Updates neon dependency to 2.0, adds tellurium as
+	dev-dependency.
+
+	* /test: Adds VERY basic tests before tellurium is integrated.
