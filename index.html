@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Cobalt : Colored, Nesting, Multiple logging management." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Cobalt</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/benbeltran/cobalt">View on GitHub</a>
+
+          <h1 id="project_title">Cobalt</h1>
+          <h2 id="project_tagline">Colored, Nesting, Multiple logging management.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/benbeltran/cobalt/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/benbeltran/cobalt/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="cobalt" class="anchor" href="#cobalt"><span class="octicon octicon-link"></span></a>Cobalt</h1>
+
+<p>Cobalt is a simple logger multiplexer that works with a JSON based format.
+You can instantiate it with a set of loggers or add them later
+(see API reference below). When logging anything, Cobalt will attempt to
+generate an Object that conforms to the Cobalt Log Format Definition
+(if required) and passes it to every logger it has by calling their <code>log</code>
+method.</p>
+
+<p>Example of instantiating a cobalt logger:</p>
+
+<p>In node:</p>
+
+<pre><code>require('cobalt-log');
+</code></pre>
+
+<p>In the browser just require the files. Then:</p>
+
+<pre><code>this.logger = new Cobalt.Console({
+  from : "Breezi Client",
+  loggers : [ new Cobalt.Logger.JsConsole({
+              formatter : Cobalt.Formatter.Token,
+              formatterOpts : {
+                formatString : "{{_from}}: {{message}}",
+                ansiColor : true
+              }
+            })]
+});
+</code></pre>
+
+<p>This code will create an instance with a JsConsole logger that uses the
+Token formatter (See loggers and formatters below).</p>
+
+<p>Cobalt works in a browser or inside node, so feel free to use cobalt all
+over! (Also, see the socket logger below for info on connecting cobalt
+loggers)</p>
+
+<h2>
+<a name="quick-api-reference" class="anchor" href="#quick-api-reference"><span class="octicon octicon-link"></span></a>Quick API Reference</h2>
+
+<ul>
+<li>
+<strong>addLogger(logger)</strong>: Adds a logger to the cobalt instance.</li>
+<li>
+<strong>removeLogger(logger)</strong>: Removes a logger from the cobalt instance.</li>
+<li>
+<strong>buildLog(item, level=7)</strong>: Generates a cobalt log object as if you had
+logged item (it will do this automatically when you log anything)</li>
+<li>
+<strong>extendLog(object)</strong>: Creates a dummy log object and extends it with
+object.</li>
+<li>
+<strong>buildSeparator</strong>: Generates a cobalt log object that defines a separator</li>
+<li>
+<strong>log, info, notice, warn, error</strong>: Generates a log object with the
+appropriate severity level and sends it to all loggers.</li>
+<li>
+<strong>separator()</strong>: Generates a separator log object and sends it to all
+loggers.</li>
+<li>
+<strong>space(lines)</strong>: Logs an empty string <code>lines</code> times</li>
+<li>
+<strong>indent()</strong>: Increases the indent level globally.</li>
+<li>
+<strong>indent(callback)</strong>: Increases the indent level for anything logged
+from inside the callback.</li>
+<li>
+<strong>outdent()/outdent(callback)</strong>: Same as indent, but decreases indent level.</li>
+<li>
+<strong>color()</strong>: Changes the color globally. †</li>
+<li>
+<strong>color(callback)</strong>: Changes the color for anything logged from inside the
+callback. †</li>
+<li>
+<strong>now()</strong>: Returns the current time in microseconds, using performance.now()
+or process.hrtime() if available. If not, falls back to miliseconds.</li>
+</ul><p>† Cobalt doesn't really care about formatting or colors, but it allows you
+to set the <code>_color</code> property in the generated object. In the end, it's up to
+the formatter to decide if it will use this property. However, this maintains
+the old cobalt API and gives you flexibility in how you color your logs.</p>
+
+<h2>
+<a name="loggers" class="anchor" href="#loggers"><span class="octicon octicon-link"></span></a>Loggers</h2>
+
+<p>Cobalt doesn't depend on any particular logger, and the loggers it expects
+to receive is any object that responds to the log method. However, since it
+would pass a JSON object instead of a string, this may result in unexpected
+behavior for loggers that don't expect it. To ease the use of Cobalt with
+existing loggers, cobalt includes a couple of loggers that you can use out
+of the box.</p>
+
+<h3>
+<a name="cobaltloggerjsconsole" class="anchor" href="#cobaltloggerjsconsole"><span class="octicon octicon-link"></span></a>Cobalt.Logger.JsConsole</h3>
+
+<p>This logger communicates the Javascript console present in web browsers or
+node with cobalt. It uses the logLevel to trigger the appropriate method
+(e.g. info vs warn vs error). You can also initialize it with a formatter,
+to convert the log object to a string:</p>
+
+<pre><code> new Cobalt.Logger.JsConsole({
+     formatter : Cobalt.Formatter.Token,
+     formatterOpts : {
+         formatString : "[{{_timestamp}}] {{message}} (@{{_from}})"
+     }
+ }) 
+</code></pre>
+
+<p>What this does is: it will trigger the method <code>format</code> on <code>formatter</code>
+passing the <code>logObject</code> and <code>formatterOpts</code>. This means that a formatter is
+any object that responds to <code>format(logObject, formatterOpts)</code>. It expects
+a string to be returned.</p>
+
+<h3>
+<a name="cobaltloggersocket" class="anchor" href="#cobaltloggersocket"><span class="octicon octicon-link"></span></a>Cobalt.Logger.Socket</h3>
+
+<p>This logger sends the log object to a socket using Socket.IO. It does not
+format the output. To catch the log from the recipient, you have to listen
+for the <code>log</code> event, and from there you can pass it to another Cobalt
+instance or do whatever you want with it.</p>
+
+<h3>
+<a name="more-loggers" class="anchor" href="#more-loggers"><span class="octicon octicon-link"></span></a>More Loggers?</h3>
+
+<p>You can build your own logger easily for any method of transport you find
+necessary (e.g. mail, database, twitter, etc). Any object that responds
+to <code>#log(logObject)</code> is a valid logger:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="c1">// A valid, very minimalistic logger</span>
+<span class="kd">var</span> <span class="nx">simpleLogger</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">log</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">logObject</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">logObject</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">logger</span><span class="p">.</span><span class="nx">addLogger</span><span class="p">(</span><span class="nx">simpleLogger</span><span class="p">);</span>
+</pre></div>
+
+<h2>
+<a name="formatters" class="anchor" href="#formatters"><span class="octicon octicon-link"></span></a>Formatters</h2>
+
+<p>Cobalt itself makes no assumptions about the output of the logger and just
+passes the object to every logger it has. However, it is clear that loggers
+may want to manipulate this object. As shown in the JsConsole, a formatter
+should respond to the format method and receive a <code>logObject</code> and an
+<code>optsObject</code>. However, as this is not a core part of Cobalt, this is only a
+recommendation (as this is the way the included JsConsole logger does it)
+and it is up to the logger on how to transform the object it receives.
+Cobalt includes a very simple formatter that works well in conjuction
+with JsConsole.</p>
+
+<h3>
+<a name="cobaltformattertoken" class="anchor" href="#cobaltformattertoken"><span class="octicon octicon-link"></span></a>Cobalt.Formatter.Token</h3>
+
+<p>The Token formatter is a very simple formatter that uses a formatString to
+extract values from the log object and interpolate them in a string.</p>
+
+<h4>
+<a name="options" class="anchor" href="#options"><span class="octicon octicon-link"></span></a>Options</h4>
+
+<ul>
+<li>
+<strong>formatString</strong>: A string that defines the format of the output. It is a
+string with double curly braces denoting fields. For example:
+<code>"[{{_timestamp}}] {{message}} (@{{_from}})"</code> would attempt to extract the
+_timestamp, message and _from fields to create a string similar to this:
+<code>"[124896126491.123] Testing the logger (@Client Application)"</code>
+(defaults to <code>"{{message}}"</code>)</li>
+<li>
+<strong>ansiColor</strong>: A boolean value, when <code>true</code> will output the string in ANSI
+color depending on the severity level (defaults to <code>false</code>)</li>
+</ul><h3>
+<a name="more-formatters" class="anchor" href="#more-formatters"><span class="octicon octicon-link"></span></a>More Formatters?</h3>
+
+<p>As with loggers, cobalt itself does not worry about these things. However,
+if you wish to make a formatter that is exchangable with Token, you just
+need to create an object that responds to the<code>format(logObject, optionsObject)</code>
+method:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="c1">// A valid, very minimalistic formatter</span>
+<span class="kd">var</span> <span class="nx">simpleFormatter</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">format</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">logObject</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">showDate</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="s2">"["</span> <span class="o">+</span> <span class="nb">Date</span><span class="p">(</span><span class="nx">logObject</span><span class="p">.</span><span class="nx">_timeStamp</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"] "</span> <span class="o">+</span> <span class="nx">logObject</span><span class="p">.</span><span class="nx">message</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">logObject</span><span class="p">.</span><span class="nx">message</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">logger</span><span class="p">.</span><span class="nx">addLogger</span><span class="p">(</span><span class="k">new</span> <span class="nx">Cobalt</span><span class="p">.</span><span class="nx">Logger</span><span class="p">.</span><span class="nx">JsConsole</span><span class="p">({</span>
+  <span class="nx">formatter</span><span class="o">:</span> <span class="nx">simpleFormatter</span><span class="p">,</span>
+  <span class="nx">formatterOpts</span> <span class="o">:</span> <span class="p">{</span>
+    <span class="nx">showDate</span> <span class="o">:</span> <span class="kc">true</span>
+  <span class="p">}</span>
+<span class="p">}));</span>
+</pre></div>
+
+<h2>
+<a name="the-cobalt-log-format" class="anchor" href="#the-cobalt-log-format"><span class="octicon octicon-link"></span></a>The Cobalt Log Format</h2>
+
+<p>The Cobalt Log (CoLog) format is a JSON based log format used with cobalt.
+It is partly inspired in Greylog's GELF format, but with very notorious
+differences. The CoLog requires a header with certain fields that allow
+cobalt and its pieces to handle it. All header fields are prefixed with
+an underscore. Other than those fields, you can put whatever you want in
+the object; It's up to the loggers to make sense of the structure and
+display it in a way that makes sense.</p>
+
+<p>You can attempt to build this structure on your own, or let cobalt build it for 
+you. Any object you pass for logging will be converted. However, if you
+build it on your own you have two options: The first one is use buildLog
+to create a log object for "item" as if you had logged "item" or you can
+use extendLog that will create a dummy log object and extends it with
+whatever object you pass to it.</p>
+
+<h3>
+<a name="required-fields" class="anchor" href="#required-fields"><span class="octicon octicon-link"></span></a>Required Fields</h3>
+
+<ul>
+<li>
+<strong>_version</strong> : The version of cobalt this is designed to work with</li>
+<li>
+<strong>_timestamp</strong> : A timestamp in microseconds.</li>
+<li>
+<strong>_cobaltLog</strong> [true] : Cobalt will check for the _cobaltLog to decide if
+transformation will happen or not.</li>
+</ul><h3>
+<a name="optional-fields" class="anchor" href="#optional-fields"><span class="octicon octicon-link"></span></a>Optional Fields</h3>
+
+<ul>
+<li>
+<strong>_from</strong>: The sender of the log (Defaults to Generic Cobalt Logger)</li>
+<li>
+<strong>_level</strong>: The level of the log (Defaults to 7)</li>
+<li>
+<strong>_levelString</strong>: The string corresponding to the log level (e.g. 7 -&gt;
+DEBUG, 3 -&gt; ERROR, 0 -&gt; CRIT)</li>
+<li>
+<strong>_indentLevel</strong>: The indent level of the log</li>
+<li>
+<strong>_color</strong>: The color of the log</li>
+<li>
+<strong>_separator</strong>: If true, indicates that this is a separator and holds no
+valuable information.</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Cobalt maintained by <a href="https://github.com/benbeltran">benbeltran</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
