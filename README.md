@@ -97,6 +97,26 @@ passing the `logObject` and `formatterOpts`. This means that a formatter is
 any object that responds to `format(logObject, formatterOpts)`. It expects
 a string to be returned.
 
+### Cobalt.Logger.File ###
+
+This logger communicates a file via a writable stream, and is intended
+only for node. Like the JSConsole logger, you can also initialize it with
+a formatter to convert the log object to a string:
+
+```
+ new Cobalt.Logger.File({
+     formatter : Cobalt.Formatter.Token,
+     formatterOpts : {
+         formatString : "[{{_timestamp}}] {{message}} (@{{_from}})"
+     }
+ }) 
+```
+
+What this does is: it will trigger the method `format` on `formatter`
+passing the `logObject` and `formatterOpts`. This means that a formatter is
+any object that responds to `format(logObject, formatterOpts)`. It expects
+a string to be returned.
+
 ### Cobalt.Logger.Socket ###
 
 This logger sends the log object to a socket using Socket.IO. It does not
@@ -128,15 +148,46 @@ passes the object to every logger it has. However, it is clear that loggers
 may want to manipulate this object. As shown in the JsConsole, a formatter
 should respond to the format method and receive a `logObject` and an
 `optsObject`. However, as this is not a core part of Cobalt, this is only a
-recommendation (as this is the way the included JsConsole logger does it)
+recommendation (as this is the way the included JsConsole/File loggers do it)
 and it is up to the logger on how to transform the object it receives.
-Cobalt includes a very simple formatter that works well in conjuction
-with JsConsole.
+
+### Cobalt.Formatter.Simple ###
+
+This is the lazy formatter, it just outputs the string in the following
+format:
+
+```
+'[{{_timestamp}}][{{_logLevelString}}]{{_from}}: {{_message}}'
+```
+
+Where `_timestamp` is converted to ISO.
+
+Example output:
+
+```
+cobalt.log("hello world");
+// -> [2015-01-09T16:02:23.102Z][INFO] Generic Cobalt Logger : hello world
+```
 
 ### Cobalt.Formatter.Token ###
 
-The Token formatter is a very simple formatter that uses a formatString to
-extract values from the log object and interpolate them in a string.
+The Token formatter is a more advanced, but still fairly simple
+formatter. It takes a `formatString` and interpolates the properties
+of the object. By default it transforms anything inside double curly
+braces `{{likeThis}}`, however you can set a custom `replaceRule`.
+
+#### Accepted Options ####
+
+* `formatString` : The string used to replace. Defaults to `"{{message}}"`
+* `replaceRule` : The regex rule to use for replacement of tokens in the
+  formatString. Defaults to `/{{(.*?)}}/g`
+* `separatorLength` <Number> : How long to print separators. Defaults to 60.
+* `isoDate` <Boolean> : Whether or not to convert `_timestamp` to ISO
+  date. Defaults to true.
+* `separatorType` <String> : The string to use for the separator.
+  Defaults to `"="`
+* `ansiColor` <Boolean> : Whether to use ANSI colors for output.
+  Defaults to `false`. This options depends on `colors`
 
 #### Options ####
 
