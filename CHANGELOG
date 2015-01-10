@@ -1,3 +1,11 @@
+2015-01-09 Sergio de la Garza <sergio@delagarza.io>
+
+	Version 1.1.1
+
+	* lib/cobalt.js (dependencies): require colors fix the log output when
+	using the tocken formatter.
+
+	
 2014-03-20 Ben Beltran <ben@nsovocal.com>
 
 	Version 1.0.0
