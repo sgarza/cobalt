@@ -1,33 +1,35 @@
 {
-  "name" : "cobalt-log",
-  "description" : "Logger + multiplexer for JSON based logs, based on Cobalt ruby gem by ktlacaelel (http://rubygems.org/gems/cobalt)",
-  "author" : {
-    "name"  : "Ben Beltran",
-    "email" : "ben@nsovocal.com",
-    "url" : "http://nsovocal.com"
+  "name": "cobalt-log",
+  "description": "Logger + multiplexer for JSON based logs, based on Cobalt ruby gem by ktlacaelel (http://rubygems.org/gems/cobalt)",
+  "author": {
+    "name": "Ben Beltran",
+    "email": "ben@nsovocal.com",
+    "url": "http://nsovocal.com"
   },
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/benbeltran/cobalt.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/benbeltran/cobalt.git"
   },
-  "contributors" : [
+  "contributors": [
     {
-      "name" : "Kazuyoshi Tlacaelel",
-      "email" : "kazu.dev@gmail.com",
-      "url" : "http://github.com/ktlacaelel"
+      "name": "Kazuyoshi Tlacaelel",
+      "email": "kazu.dev@gmail.com",
+      "url": "http://github.com/ktlacaelel"
     }
   ],
-  "version" : "1.1.1",
-  "dependencies" : {
-    "neon" : "2.0.x",
-    "socket.io-client" : "0.9.x",
-    "colors" : "0.x.x",
-    "emailjs" : "0.3.x",
-    "microtime" : "0.3.x"
+  "version": "1.1.2",
+  "dependencies": {
+    "colors": "^1.0.3",
+    "emailjs": "^0.3.12",
+    "microtime": "^1.2.0",
+    "neon": "^2.0.0",
+    "socket.io-client": "^1.2.1"
   },
-  "devDependencies" : {
-    "tellurium" : "2.0.x"
+  "devDependencies": {
+    "tellurium": "2.0.x"
   },
-  "engines" : { "node" : ">= 0.8.0" },
-  "main" : "./lib/cobalt.js"
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "main": "./lib/cobalt.js"
 }
